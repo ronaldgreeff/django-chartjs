@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CSA Graph Examples</title>
+    {% load static %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <!-- <script src="{% static 'js/ChartLine.js' %}"></script> -->
+    <script type="text/javascript">endpoint = {{ endpoint| safe }};</script>
+    <script src="{% static 'js/ChartLine.js' %}"></script>
+</head>
+<body>
+    <div class="container" id='chart'>
+        <div class="chart">
+            <canvas id="LineChart" width="50%" ></canvas>
+        </div>
+    </div>
+</body>
+</html>
