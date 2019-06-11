@@ -2,11 +2,13 @@ from charts.models import *
 from rest_framework import serializers
 
 
-# class EntrySerializer(serializers.ModelSerializer):
-
-# 	class Meta:
-# 		model = Entry
-# 		fields = '__all__'
+background_colours = [
+	'#3e95cd',
+	'#8e5ea2',
+	'#3cba9f',
+	'#e8c3b9',
+	'#c45850',
+]
 
 
 class DataSetSerializer(serializers.Serializer):
@@ -15,17 +17,24 @@ class DataSetSerializer(serializers.Serializer):
 
 	def get_data(self, obj):
 
-		labels = [d.key for d in obj.entry_set.all()]
-		data = [d.value for d in obj.entry_set.all()]
 		label = obj.title
 		selector = '{}{}'.format(obj.id, obj.title.lower().replace(' ', '_'))
+
+
+		labels = [d.key for d in obj.entry_set.all()]
+		data_points = [d.value for d in obj.entry_set.all()]
+		backgroundColor = background_colours[(obj.id-1)]
+
+		# generate a list of dicts (datasets) here
+		datasets = {}
 
 		return {
 			'selector': selector,
 			'labels': labels,
-			'datasets': [{
+			'datasets': [{ # this list needs to be dynamic and include backgroundColor
 				'label': label,
-				'data': data
+				'data': data_points,
+				'backgroundColor': backgroundColor,
 			}]
 		}
 
