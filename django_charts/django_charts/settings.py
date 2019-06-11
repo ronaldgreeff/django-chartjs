@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '1grs%s+dd^c9-7j5jxuk#e!l3taeyrop_^5+9ge-&ylz&475-*'
+SECRET_KEY = 'cy4587w_cofjfm!d#11q9l*&0h3l*%^p%dsw58)heix41#gq^('
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -37,8 +37,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
-    'charts',
 ]
 
 MIDDLEWARE = [
@@ -56,9 +54,7 @@ ROOT_URLCONF = 'django_charts.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            os.path.join(BASE_DIR, 'charts/templates/charts')
-        ],
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -122,8 +118,3 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
-
-STATICFILES_DIRS = [
-    # os.path.join(BASE_DIR, 'static'),
-    os.path.join(BASE_DIR, 'charts/static/charts'),
-]

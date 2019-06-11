@@ -7,11 +7,12 @@
 // });
 
 $.ajax({
-    method: "GET",
     url: endpoint,
+    method: "GET",
+    dataType: 'json',
     success: function(data){
 
-        console.log(data); // data here is all of the data / a list of objects
+        var data;
 
         for (data_set in data) {
             var dataset = data[data_set];
@@ -25,6 +26,7 @@ $.ajax({
             })();
         };
     },
+
     error: function(error_data){
         console.log("error")
         console.log(error_data)

@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import Group
 
 
 class DataSet(models.Model):
@@ -47,10 +48,12 @@ class ChartType(models.Model):
 	def __str__(self):
 		return self._type
 
+
 class Chart(models.Model):
-	type = models.ForeignKey(ChartType, on_delete='CASCADE')
+	_type = models.ForeignKey(ChartType, on_delete='CASCADE')
 	data = models.ForeignKey(DataSet, on_delete='CASCADE')
+	group = models.ForeignKey(Group, on_delete='CASCADE')
 	# options
 
 	def __str__(self):
-		return '{}: {}'.format(self.type, self.data)
+		return '{}: {} ({})'.format(self._type, self.data, self.group)

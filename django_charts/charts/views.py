@@ -39,6 +39,10 @@ class AdminGraphView(TemplateView):
 
     def get_context_data(self):
         context = super(AdminGraphView, self).get_context_data()
+
+        context['selectors'] = [
+            '{}{}'.format(chart.id, chart.title) for chart in Chart.objects.filter(group=0)]
+
         context['endpoint'] = json.dumps('data')
 
         return context
