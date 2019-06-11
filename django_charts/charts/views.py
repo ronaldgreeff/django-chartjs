@@ -11,26 +11,17 @@ from charts.serializers import *
 import json
 
 
-class DataSetViewSet(viewsets.ReadOnlyModelViewSet):
+def get_selector_title(chart_data_object):
+    return '{}{}'.format(chart_data_object.id, chart_data_object.title.lower().replace(' ', '_'))
 
-    queryset = DataSet.objects.prefetch_related('entry_set').all()
-    serializer_class = DataSetSerializer
-    # filter_backends = (filters.DjangoFilterBackend)
-
-    def list(self, request, *args, **kwargs):
-
-        response = super(DataSetViewSet, self).list(request, *args, **kwargs)
-
-        response.data = {'{}{}'.format(
-            result.pop('id'), result.pop('title').lower().replace(' ', '_')
-            ): result for result in response.data}
-
-        return response
+# Need both serialized data and data.selector from data being serialized - declare once as constant
+ADMIN_DATA = Chart.objects.select_related('data').filter(group__name='Admin')
 
 
-class ChartViewSet(viewsets.ReadOnlyModelViewSet):
 
-    queryset = Chart.objects.all()
+class AdminChartViewSet(viewsets.ReadOnlyModelViewSet):
+
+    queryset = ADMIN_DATA
     serializer_class = ChartSerializer
 
 
@@ -38,11 +29,12 @@ class AdminGraphView(TemplateView):
     template_name = 'charts/graph.html'
 
     def get_context_data(self):
+
         context = super(AdminGraphView, self).get_context_data()
 
-        context['selectors'] = [
-            '{}{}'.format(chart.id, chart.title) for chart in Chart.objects.filter(group=0)]
+        context['selectors'] = [get_selector_title(chart.data)
+            for chart in ADMIN_DATA]
 
-        context['endpoint'] = json.dumps('data')
+        context['endpoint'] = json.dumps('data/admin_data')
 
         return context

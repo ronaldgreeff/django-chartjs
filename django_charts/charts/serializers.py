@@ -31,7 +31,7 @@ class DataSetSerializer(serializers.Serializer):
 
 class ChartSerializer(serializers.Serializer):
 
-	type = serializers.CharField()
+	_type = serializers.CharField()
 	data = DataSetSerializer()
 
 	def to_representation(self, obj):
@@ -40,7 +40,7 @@ class ChartSerializer(serializers.Serializer):
 
 		chart_data = {
 			'selector': data['data']['data'].pop('selector'),
-			'type': data['type'],
+			'type': data['_type'],
 			'chart_data': data['data'].pop('data'),
 		}
 

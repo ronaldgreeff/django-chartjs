@@ -6,6 +6,21 @@
 //     console.log( "ready!" );
 // });
 
+function randomColors() {
+    var r = Math.floor(Math.random() * 255);
+    var g = Math.floor(Math.random() * 255);
+    var b = Math.floor(Math.random() * 255);
+    return "rgba(" + r + "," + g + "," + b + ", 0.5)";
+};
+
+function poolColors(a) {
+    var pool = [];
+    for(i = 0; i < a; i++) {
+        pool.push(randomColors());
+    };
+    return pool;
+};
+
 $.ajax({
     url: endpoint,
     method: "GET",
@@ -15,13 +30,28 @@ $.ajax({
         var data;
 
         for (data_set in data) {
-            var dataset = data[data_set];
+            var selector = data[data_set]['selector'];
+            var chart_type = data[data_set]['type'];
+            var chart_data = data[data_set]["chart_data"];
+
+            for (i=0; i<chart_data['datasets'].length; i++) {
+                var chart_data_datasets = chart_data['datasets'][0];
+                var data_len = chart_data_datasets['data'].length;
+
+                console.log(chart_data_datasets, data_len)
+
+                chart_data_datasets.backgroundColor = poolColors(data_len);
+                chart_data_datasets.borderColor = poolColors(data_len);
+            };
 
             (function() {
-                var ctx = document.getElementById(dataset["selector"]);
+                var ctx = document.getElementById(selector);
                 var chart = new Chart(ctx, {
-                    type: dataset["type"],
-                    data: dataset["chart_data"],
+                    type: chart_type,
+                    data: chart_data,
+                    // backgroundColor: poolColors(dataset["type"].length),
+                    // borderColor: poolColors(dataset["type"].length),
+                    borderWidth: 1,
                 });
             })();
         };

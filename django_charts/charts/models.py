@@ -19,7 +19,6 @@ class Entry(models.Model):
 		return '{}: {} 	{}'.format(self.data_set.title, self.key, self.value)
 
 
-
 class ChartType(models.Model):
 	LINE = 'line'
 	BAR = 'bar'
@@ -43,7 +42,7 @@ class ChartType(models.Model):
 		(AREA, 'Area'),
 		(MIXED, 'Mixed'),
 	]
-	_type = models.CharField(max_length=2, choices=CHART_CHOICES, default=LINE)
+	_type = models.CharField(max_length=10, choices=CHART_CHOICES, default=LINE)
 
 	def __str__(self):
 		return self._type

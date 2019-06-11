@@ -5,9 +5,10 @@ from rest_framework.routers import DefaultRouter
 from charts import views
 
 router = DefaultRouter()
-router.get_api_root_view().cls.__doc__ = 'Main title'
-# router.register(r'', views.DataSetViewSet, basename='datasets')
-router.register(r'', views.ChartViewSet, basename='datasets')
+# router.get_api_root_view().cls.__doc__ = 'Main title'
+
+router.register(r'admin_data', views.AdminChartViewSet, basename='admin_datasets')
+# router.register(r'other_data', views.OtherChartViewSet, basename='other_datasets')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

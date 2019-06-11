@@ -14,12 +14,12 @@
 </head>
 <body>
     <div class="container" id='chart'>
+        {% for selector in selectors %}
         <div class="chart">
-            <canvas id="1dataset_1" width="50%" ></canvas>
+            <canvas id={{ selector }} width="50%"></canvas>
         </div>
-        <div class="chart">
-            <canvas id="2dataset_2" width="50%" ></canvas>
-        </div>
+        {% endfor %}
+
     </div>
 </body>
 </html>
