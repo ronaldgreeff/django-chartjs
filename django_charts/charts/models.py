@@ -1,58 +1,41 @@
 from django.db import models
 from django.contrib.auth.models import Group
 
-
-class DataSet(models.Model):
-	# chart = models.OneToOneField(Chart, on_delete='CASCADE')
-	title = models.CharField(max_length=20)
+class Chart(models.Model):
+	BAR = 'bar'
+	PIE = 'pie'
+	DOUGHNUT = 'doughnut'
+	POLAR = 'polar'
+	LINE = 'line'
+	RADAR = 'radar'
+	CHART_CHOICES = [
+		(BAR, 'Bar'),
+		(PIE, 'Pie'),
+		(DOUGHNUT, 'Doughnut'),
+		(POLAR, 'Polar'),
+		(LINE, 'Line'),
+		(RADAR, 'Radar'),
+	]
+	chart_title = models.CharField(max_length=20, ) # change to chart_title
+	chart_type = models.CharField(max_length=10, choices=CHART_CHOICES, default=LINE) # change to chart_type
+	chart_group = models.ForeignKey(Group, on_delete='CASCADE') # change to chart_group
 
 	def __str__(self):
-		return '{}'.format(self.title)
+		return '{} | ({} {} {})'.format(self.chart_title, self.id, self.chart_type, self.chart_group)
+
+
+class DataSet(models.Model):
+	chart = models.ForeignKey(Chart, on_delete='CASCADE', related_name='datasets')
+	dataset_label = models.CharField(max_length=20) # change to dataset_label
+
+	def __str__(self):
+		return 'DATASET: {} (CHART: {})'.format(self.dataset_label, self.chart)
 
 
 class Entry(models.Model):
-	data_set = models.ForeignKey(DataSet, on_delete='CASCADE')
+	data_set = models.ForeignKey(DataSet, on_delete='CASCADE', related_name='entries')
 	key = models.CharField(max_length=20)
 	value = models.IntegerField()
 
 	def __str__(self):
-		return '{}: {} 	{}'.format(self.data_set.title, self.key, self.value)
-
-
-class ChartType(models.Model):
-	LINE = 'line'
-	BAR = 'bar'
-	RADAR = 'radar'
-	DOUGHNUT = 'doughnut'
-	PIE = 'pie'
-	POLAR = 'polar'
-	BUBBLE = 'bubble'
-	SCATTER = 'scatter'
-	AREA = 'area'
-	MIXED = 'mixed'
-	CHART_CHOICES = [
-		(LINE, 'Line'),
-		(BAR, 'Bar'),
-		(RADAR, 'Radar'),
-		(DOUGHNUT, 'Doughnut'),
-		(PIE, 'Pie'),
-		(POLAR, 'Polar'),
-		(BUBBLE, 'Bubble'),
-		(SCATTER, 'Scatter'),
-		(AREA, 'Area'),
-		(MIXED, 'Mixed'),
-	]
-	_type = models.CharField(max_length=10, choices=CHART_CHOICES, default=LINE)
-
-	def __str__(self):
-		return self._type
-
-
-class Chart(models.Model):
-	_type = models.ForeignKey(ChartType, on_delete='CASCADE')
-	data = models.ForeignKey(DataSet, on_delete='CASCADE')
-	group = models.ForeignKey(Group, on_delete='CASCADE')
-	# options
-
-	def __str__(self):
-		return '{}: {} ({})'.format(self._type, self.data, self.group)
+		return 'K:{}: V:{} 	({})'.format(self.key, self.value, self.data_set)

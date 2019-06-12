@@ -5,5 +5,4 @@ from charts.models import *
 # admin.site.register(Chart)
 admin.site.register(DataSet)
 admin.site.register(Entry)
-admin.site.register(ChartType)
 admin.site.register(Chart)
