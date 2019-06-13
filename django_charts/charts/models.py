@@ -1,8 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import Group
 
+
 class Chart(models.Model):
 	BAR = 'bar'
+	# HORIZONAL = 'horizontalBar',
 	PIE = 'pie'
 	DOUGHNUT = 'doughnut'
 	POLAR = 'polar'
@@ -10,6 +12,7 @@ class Chart(models.Model):
 	RADAR = 'radar'
 	CHART_CHOICES = [
 		(BAR, 'Bar'),
+		# (HORIZONAL, 'HorBar'),
 		(PIE, 'Pie'),
 		(DOUGHNUT, 'Doughnut'),
 		(POLAR, 'Polar'),

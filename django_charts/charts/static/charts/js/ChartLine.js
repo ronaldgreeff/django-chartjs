@@ -12,8 +12,9 @@ $.ajax({
             var chart_data = data[data_set]["chart_data"];
 
             (function() {
-                var ctx = document.getElementById(selector);
-                var chart = new Chart(ctx, {
+                // var ctx = document.getElementById(selector);
+                // var chart = new Chart(ctx, {
+                var chart = new Chart(document.getElementById(selector), {
                     type: chart_type,
                     data: chart_data,
                 });

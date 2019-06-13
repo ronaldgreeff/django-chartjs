@@ -39,127 +39,64 @@ class ChartSerializer(serializers.Serializer):
 
     def to_representation(self, obj):
 
+        def get_labels(datasets):
+
+            l = []
+            for d in datasets:
+                for k in d['entries']['keys']:
+                    if not k in l:
+                        l.append(k)
+            return l
+
+        def get_datasets(datasets):
+
+            return [{
+                'label': dataset['dataset_label'],
+                'data': dataset['entries']['values'],
+            } for dataset in data['datasets']]
+
+
         data = super(ChartSerializer, self).to_representation(obj)
 
         chart_type = data['chart_type']
 
-        if chart_type == 'line' or chart_type == 'radar':
-
-        # IN:
-        # OrderedDict([
-        #   ('chart_title', 'Line Chart'),
-        #   ('chart_type', 'line'),
-        #   ('datasets', [
-        #       OrderedDict([
-        #           ('dataset_label', 'Africa'),
-        #           ('entries', {'keys': ['January', 'February', 'March'], 'values': [10, 40, 30]})]
-        #           ),
-        #       OrderedDict([
-        #           ('dataset_label', 'Asia'),
-        #           ('entries', {'keys': ['January', 'February', 'March'], 'values': [5, 20, 35]})
-        #           ])
-        #       ])
-        #   ])
-
-        # OUT:
-        # type: 'line',
-        # data: {
-        #     labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'Sept', 'Oct', 'Nov', 'Dec'],
-        #     datasets: [{
-        #         label: 'Africa',
-        #         backgroundColor: '#3e95cd',
-        #         borderColor: '#3e95cd',
-        #         data: [2, 4, 8, 16, 32, 64, 128, 64, 32, 16, 8, 4],
-        #         fill: false,
-        #     }, {
-        #         label: 'Asia',
-        #         backgroundColor: '#8e5ea2',
-        #         borderColor: '#8e5ea2',
-        #         data: [1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144],
-        #         fill: false,
-        #     }]
-
-            x = []
-            for d in data['datasets']:
-                for i in d['entries']['keys']:
-                    x.append(i)
-            labels = set(x)
-
-            chart_data = {
-                # 'selector': ,
-                'type': chart_type,
-                'data': {
-                    'labels': labels,
-                    'datasets': [{
-                        'label': dataset['dataset_label'],
-                        'data': dataset['entries']['values'],
-                    } for dataset in data['datasets']],
-                },
-                'options': {
-                    'title': {
-                        'display': True,
-                        'text': data['chart_title'],
-                    }
+        proto_chart = {
+            'type': chart_type,
+            'data': {
+                'labels': get_labels(data['datasets']),
+                'datasets': get_datasets(data['datasets']),
+            },
+            'options': {
+                'title': {
+                    'display': True,
+                    'text': data['chart_title'],
                 }
             }
-
-        else:
-
-        # IN:
-        # OrderedDict([
-        #   ('chart_title', 'Bar Chart'),
-        #   ('chart_type', 'bar'),
-        #   ('datasets', [
-        #       OrderedDict([
-        #           ('dataset_label', 'Population'),
-        #           ('entries', {'keys': ['Africa', 'Asia', 'Europe'], 'values': [10, 40, 30]})])])])
-
-        # OUT:
-        # type: 'bar',
-        # data: {
-        #     labels: ['Africa', 'Asia', 'Europe'],
-        #     datasets: [{
-        #         label: 'Population',
-        #         backgroundColor: ['#3e95cd', '#8e5ea2', '#3cba9f'],
-        #         data: [10, 40, 30]
-        #     }]
-        # },
-        # options: {
-        #   legend: { display: false },
-        #   title: {
-        #     display: true,
-        #     text: 'Predicted world population (millions) in 2050'
-        #   }
-        # }
-
-            if len(data['datasets']) == 1:
-
-                print(type(data['datasets']))
-
-                chart_data = {
-                    'type': chart_type,
-                    'data': {
-                        'labels': data['datasets'][0]['entries']['keys'],
-                        'datasets': [{
-                            'label': data['datasets'][0]['dataset_label'],
-                            'data': data['datasets'][0]['entries']['values'],
-                        }]
-                    },
-                    'options': {
-                    'title': {
-                        'display': True,
-                        'text': data['chart_title'],
-                        }
-                    }
-                }
-
-        return chart_data
+        }
 
 
-        # chart_data = {
-        #   # 'selector': data['data']['data'].pop('selector'),
-        #   'type': data['_type'],
-        #   'chart_data': data['data'].pop('data'),
-        # }
+        def set_additional_parameters(chart_type, proto_chart):
 
-    #   return chart_data
+            # chart_options = proto_chart['options']
+            chart_datasets = proto_chart['data']['datasets']
+
+            if (chart_type == 'bar' or chart_type == 'horizontalBar') and len(proto_chart['data']['datasets']) == 1:
+
+                proto_chart['options'].update({'legend': {'display': False}})
+
+                for chart_dataset in chart_datasets:
+                    chart_dataset.update(
+                        {'backgroundColor': background_colours[:len(chart_dataset['data'])]}
+                    )
+
+            else:
+
+                for chart_dataset in chart_datasets:
+                    chart_dataset.update(
+                        {'backgroundColor': background_colours[chart_datasets.index(chart_dataset)]}
+                    )
+
+            return proto_chart
+
+
+        return set_additional_parameters(chart_type, proto_chart)
