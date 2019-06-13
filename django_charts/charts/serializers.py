@@ -109,8 +109,8 @@ class ChartSerializer(serializers.Serializer):
                     swatches = colour_swatch[:len(chart_dataset['data'])]
 
                     chart_dataset.update({
-                        'backgroundColor': [add_gradient(swatch, 1) for swatch in swatches],
-                        'borderColor': [add_gradient(swatch, 0.2) for swatch in swatches], })
+                        'backgroundColor': [add_gradient(swatch, 0.2) for swatch in swatches],
+                        'borderColor': [add_gradient(swatch, 1) for swatch in swatches], })
             else:
 
                 for chart_dataset in chart_datasets:
@@ -118,14 +118,14 @@ class ChartSerializer(serializers.Serializer):
                     swatch = colour_swatch[chart_datasets.index(chart_dataset)]
 
                     chart_dataset.update({
-                        'backgroundColor': add_gradient(swatch, 1),
-                        'borderColor': add_gradient(swatch, 0.2), })
+                        'backgroundColor': add_gradient(swatch, 0.2),
+                        'borderColor': add_gradient(swatch, 1), })
 
                     if chart_type == 'radar':
                         chart_dataset.update({
                             'fill': True,
-                            'pointBorderColor': add_gradient(swatch, 1),
-                            'pointBackgroundColor': add_gradient(swatch, 0.2), })
+                            'pointBorderColor': add_gradient(swatch, 0.2),
+                            'pointBackgroundColor': add_gradient(swatch, 1), })
 
             return proto_chart
 

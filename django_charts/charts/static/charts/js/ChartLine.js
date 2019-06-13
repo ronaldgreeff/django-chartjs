@@ -9,7 +9,8 @@ $.ajax({
         for (data_set in data) {
             var selector = data[data_set]['selector'];
             var chart_type = data[data_set]['type'];
-            var chart_data = data[data_set]["chart_data"];
+            var chart_data = data[data_set]["data"];
+
 
             (function() {
                 // var ctx = document.getElementById(selector);
