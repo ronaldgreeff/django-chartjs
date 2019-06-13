@@ -11,11 +11,14 @@ from charts.serializers import *
 import json
 
 
-def get_selector_title(chart_data_object):
-    return '{}{}'.format(chart_data_object.id, chart_data_object.title.lower().replace(' ', '_'))
-
 # Need both serialized data and data.selector from data being serialized - declare once as constant
 ADMIN_DATA = Chart.objects.prefetch_related('datasets').filter(chart_group__name='Admin')
+
+def get_selector_title(chart_data_object):
+    return '{}{}{}'.format(
+        chart_data_object.id,
+        chart_data_object.chart_type,
+        (chart_data_object.chart_title).replace(' ','').lower(), )
 
 
 
@@ -32,8 +35,8 @@ class AdminGraphView(TemplateView):
 
         context = super(AdminGraphView, self).get_context_data()
 
-        # context['selectors'] = [get_selector_title(chart.data)
-        #     for chart in ADMIN_DATA]
+        context['selectors'] = [get_selector_title(chart)
+            for chart in ADMIN_DATA]
 
         context['endpoint'] = json.dumps('data/admin_data')
 

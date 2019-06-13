@@ -2,13 +2,18 @@ from charts.models import *
 from rest_framework import serializers
 
 
-background_colours = [
-    '#3e95cd',
-    '#8e5ea2',
-    '#3cba9f',
-    '#e8c3b9',
-    '#c45850',
+colour_swatch = [
+    'rgb(62,149,205)',
+    'rgb(142,94,162)',
+    'rgb(60,186,159)',
+    'rgb(232,195,185)',
+    'rgb(196,88,80)',
 ]
+
+gradients = {
+    'backgroundColor': 0.5,
+    'borderColor': 1,
+}
 
 # selector = '{}{}'.format(obj.id, obj.title.lower().replace(' ', '_'))
 
@@ -37,6 +42,7 @@ class ChartSerializer(serializers.Serializer):
     chart_type = serializers.CharField()
     datasets = DataSetSerializer(many=True)
 
+
     def to_representation(self, obj):
 
         def get_labels(datasets):
@@ -56,12 +62,12 @@ class ChartSerializer(serializers.Serializer):
             } for dataset in data['datasets']]
 
 
+
         data = super(ChartSerializer, self).to_representation(obj)
 
-        chart_type = data['chart_type']
-
         proto_chart = {
-            'type': chart_type,
+            'id': obj.id,
+            'type': data['chart_type'],
             'data': {
                 'labels': get_labels(data['datasets']),
                 'datasets': get_datasets(data['datasets']),
@@ -75,28 +81,71 @@ class ChartSerializer(serializers.Serializer):
         }
 
 
-        def set_additional_parameters(chart_type, proto_chart):
 
-            # chart_options = proto_chart['options']
-            chart_datasets = proto_chart['data']['datasets']
+        def set_options(proto_chart):
 
-            if (chart_type == 'bar' or chart_type == 'horizontalBar') and len(proto_chart['data']['datasets']) == 1:
+            chart_type = proto_chart['type']
+            chart_options = proto_chart['options']
+
+            if (chart_type == 'bar' or chart_type == 'horizontalBar'):
 
                 proto_chart['options'].update({'legend': {'display': False}})
-
-                for chart_dataset in chart_datasets:
-                    chart_dataset.update(
-                        {'backgroundColor': background_colours[:len(chart_dataset['data'])]}
-                    )
-
-            else:
-
-                for chart_dataset in chart_datasets:
-                    chart_dataset.update(
-                        {'backgroundColor': background_colours[chart_datasets.index(chart_dataset)]}
-                    )
 
             return proto_chart
 
 
-        return set_additional_parameters(chart_type, proto_chart)
+        def set_dataset_params(proto_chart):
+
+            def add_gradient(source_str, v=1):
+                return '{},{}{}'.format(source_str[:-1], v, source_str[-1:])
+
+            chart_type = proto_chart['type']
+            chart_datasets = proto_chart['data']['datasets']
+
+            if len(chart_datasets) == 1:
+
+                for chart_dataset in chart_datasets:
+
+                    swatches = colour_swatch[:len(chart_dataset['data'])]
+
+                    chart_dataset.update({
+                        'backgroundColor': [add_gradient(swatch, 1) for swatch in swatches],
+                        'borderColor': [add_gradient(swatch, 0.2) for swatch in swatches], })
+            else:
+
+                for chart_dataset in chart_datasets:
+
+                    swatch = colour_swatch[chart_datasets.index(chart_dataset)]
+
+                    chart_dataset.update({
+                        'backgroundColor': add_gradient(swatch, 1),
+                        'borderColor': add_gradient(swatch, 0.2), })
+
+                    if chart_type == 'radar':
+                        chart_dataset.update({
+                            'fill': True,
+                            'pointBorderColor': add_gradient(swatch, 1),
+                            'pointBackgroundColor': add_gradient(swatch, 0.2), })
+
+            return proto_chart
+
+
+        def set_chart_selector(proto_chart):
+
+            proto_chart.update({
+                    'selector': '{}{}{}'.format(
+                            proto_chart.pop('id'),
+                            proto_chart['type'],
+                            (proto_chart['options']['title']['text']).replace(' ','').lower(),
+                        )
+                })
+
+            return proto_chart
+
+
+        proto_chart = set_options(proto_chart)
+        proto_chart = set_dataset_params(proto_chart)
+
+        chart = set_chart_selector(proto_chart)
+
+        return chart
