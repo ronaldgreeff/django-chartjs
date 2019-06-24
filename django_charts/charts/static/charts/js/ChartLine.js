@@ -7,17 +7,17 @@ $.ajax({
         var data;
 
         for (data_set in data) {
-            var selector = data[data_set]['selector'];
-            var chart_type = data[data_set]['type'];
+            var selector = data[data_set]["selector"];
+            var chart_type = data[data_set]["type"];
             var chart_data = data[data_set]["data"];
+            var chart_options = data[data_set]["options"];
 
 
             (function() {
-                // var ctx = document.getElementById(selector);
-                // var chart = new Chart(ctx, {
                 var chart = new Chart(document.getElementById(selector), {
                     type: chart_type,
                     data: chart_data,
+                    options: chart_options,
                 });
             })();
         };

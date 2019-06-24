@@ -2,20 +2,30 @@ from charts.models import *
 from rest_framework import serializers
 
 
-colour_swatch = [
-    'rgb(62,149,205)',
-    'rgb(142,94,162)',
-    'rgb(60,186,159)',
-    'rgb(232,195,185)',
-    'rgb(196,88,80)',
-]
-
-gradients = {
-    'backgroundColor': 0.5,
-    'borderColor': 1,
+standard_settings = {
+    'colour_swatch': [
+        'rgb(62,149,205)',
+        'rgb(142,94,162)',
+        'rgb(60,186,159)',
+        'rgb(232,195,185)',
+        'rgb(196,88,80)',
+    ],
+    'gradients': {
+        'backgroundColor': 0.2,
+        'borderColor': 1,
+    },
+    'datasets': {
+        'borderWidth': 1,
+    },
+    'charts': {
+        'radar': {
+            'fill': True,
+            # 'pointBorderColor': add_gradient(swatch, 0.2), # Should call the function here, but can't
+            # 'pointBackgroundColor': add_gradient(swatch, 1)
+        }
+    }
 }
 
-# selector = '{}{}'.format(obj.id, obj.title.lower().replace(' ', '_'))
 
 class DataSetSerializer(serializers.Serializer):
 
@@ -81,7 +91,6 @@ class ChartSerializer(serializers.Serializer):
         }
 
 
-
         def set_options(proto_chart):
 
             chart_type = proto_chart['type']
@@ -89,43 +98,61 @@ class ChartSerializer(serializers.Serializer):
 
             if (chart_type == 'bar' or chart_type == 'horizontalBar'):
 
-                proto_chart['options'].update({'legend': {'display': False}})
+                chart_options.update({'legend': {'display': False}})
 
             return proto_chart
 
 
         def set_dataset_params(proto_chart):
 
-            def add_gradient(source_str, v=1):
-                return '{},{}{}'.format(source_str[:-1], v, source_str[-1:])
+            def add_gradient(rgb_str, v=1):
+                return '{},{}{}'.format(rgb_str[:-1], v, rgb_str[-1:])
+
+
+            def apply_colours(chart_dataset):
+
+                if chart_type in ('bar', 'horizontalBar') and len(chart_datasets) == 1:
+
+                    swatches = standard_settings['colour_swatch'][:len(chart_dataset['data'])]
+
+                    gradiated_swatches = {gradient_type[0]: [add_gradient(swatch, gradient_type[1]) for swatch in swatches]
+                        for gradient_type in standard_settings['gradients'].items()}
+
+                    chart_dataset.update(gradiated_swatches)
+
+                else:
+
+                    swatch = standard_settings['colour_swatch'][chart_datasets.index(chart_dataset)]
+
+                    gradiated_swatch = {gradient_type[0]: add_gradient(swatch, gradient_type[1])
+                        for gradient_type in standard_settings['gradients'].items()}
+
+                    chart_dataset.update(gradiated_swatch)
+
+
+            def apply_standard_settings(chart_dataset):
+                chart_dataset.update(standard_settings['datasets'])
+
+
+            def apply_additional_chart_settings(chart_dataset):
+                additional_chart_settings = standard_settings['charts'].get(chart_type)
+                if additional_chart_settings:
+                    chart_dataset.update(additional_chart_settings)
+
+
 
             chart_type = proto_chart['type']
             chart_datasets = proto_chart['data']['datasets']
 
-            if len(chart_datasets) == 1:
 
-                for chart_dataset in chart_datasets:
+            for chart_dataset in chart_datasets:
 
-                    swatches = colour_swatch[:len(chart_dataset['data'])]
+                apply_colours(chart_dataset)
 
-                    chart_dataset.update({
-                        'backgroundColor': [add_gradient(swatch, 0.2) for swatch in swatches],
-                        'borderColor': [add_gradient(swatch, 1) for swatch in swatches], })
-            else:
+                apply_standard_settings(chart_dataset)
 
-                for chart_dataset in chart_datasets:
+                apply_additional_chart_settings(chart_dataset)
 
-                    swatch = colour_swatch[chart_datasets.index(chart_dataset)]
-
-                    chart_dataset.update({
-                        'backgroundColor': add_gradient(swatch, 0.2),
-                        'borderColor': add_gradient(swatch, 1), })
-
-                    if chart_type == 'radar':
-                        chart_dataset.update({
-                            'fill': True,
-                            'pointBorderColor': add_gradient(swatch, 0.2),
-                            'pointBackgroundColor': add_gradient(swatch, 1), })
 
             return proto_chart
 
