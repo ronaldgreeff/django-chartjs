@@ -2,7 +2,7 @@ from charts.models import *
 from rest_framework import serializers
 
 
-standard_settings = {
+colour_settings = {
     'colour_swatch': [
         'rgb(62,149,205)',
         'rgb(142,94,162)',
@@ -11,8 +11,21 @@ standard_settings = {
         'rgb(196,88,80)',
     ],
     'gradients': {
-        'backgroundColor': 0.2,
-        'borderColor': 1,
+        'background': 0.2,
+        'border': 1,
+    }
+}
+
+standard_settings = {
+    'gradients': {
+        'backgroundColor': lambda rgb_str: '{},{}{}'.format(
+            rgb_str[:-1],
+            colour_settings['gradients']['background'],
+            rgb_str[-1:]),
+        'borderColor': lambda rgb_str: '{},{}{}'.format(
+            rgb_str[:-1],
+            colour_settings['gradients']['border'],
+            rgb_str[-1:]),
     },
     'datasets': {
         'borderWidth': 1,
@@ -20,11 +33,18 @@ standard_settings = {
     'charts': {
         'radar': {
             'fill': True,
-            # 'pointBorderColor': add_gradient(swatch, 0.2), # Should call the function here, but can't
-            # 'pointBackgroundColor': add_gradient(swatch, 1)
+            'pointBorderColor': lambda rgb_str: '{},{}{}'.format(
+                rgb_str[:-1],
+                colour_settings['gradients']['background'],
+                rgb_str[-1:]),
+            'pointBackgroundColor': lambda rgb_str: '{},{}{}'.format(
+                rgb_str[:-1],
+                colour_settings['gradients']['border'],
+                rgb_str[-1:]),
         }
     }
 }
+
 
 
 class DataSetSerializer(serializers.Serializer):
@@ -105,26 +125,23 @@ class ChartSerializer(serializers.Serializer):
 
         def set_dataset_params(proto_chart):
 
-            def add_gradient(rgb_str, v=1):
-                return '{},{}{}'.format(rgb_str[:-1], v, rgb_str[-1:])
-
 
             def apply_colours(chart_dataset):
 
                 if chart_type in ('bar', 'horizontalBar') and len(chart_datasets) == 1:
 
-                    swatches = standard_settings['colour_swatch'][:len(chart_dataset['data'])]
+                    swatches = colour_settings['colour_swatch'][:len(chart_dataset['data'])]
 
-                    gradiated_swatches = {gradient_type[0]: [add_gradient(swatch, gradient_type[1]) for swatch in swatches]
+                    gradiated_swatches = {gradient_type[0]: [gradient_type[1](swatch) for swatch in swatches]
                         for gradient_type in standard_settings['gradients'].items()}
 
                     chart_dataset.update(gradiated_swatches)
 
                 else:
 
-                    swatch = standard_settings['colour_swatch'][chart_datasets.index(chart_dataset)]
+                    swatch = colour_settings['colour_swatch'][chart_datasets.index(chart_dataset)]
 
-                    gradiated_swatch = {gradient_type[0]: add_gradient(swatch, gradient_type[1])
+                    gradiated_swatch = {gradient_type[0]: gradient_type[1](swatch)
                         for gradient_type in standard_settings['gradients'].items()}
 
                     chart_dataset.update(gradiated_swatch)
