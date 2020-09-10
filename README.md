@@ -1,12 +1,14 @@
 # django-chartjs
-A Django + charts.js implementation
+A simple Django + charts.js implementation (early 2019)
 
 Brief: ~200 members submit quarterly figures. Provide something in return to members in the form of data visualisation / charts
+
 Rationale: Submission every quarter / client already has a standard dataset they extract every quarter, so run preset queries at submission close; process and store the results in database to reduce computing.
 
 # Model:
 Chart -< DataSet -< Entry
-Pretty simple
+
+Pretty simple (Chart can have 1+ related DataSets, which are composed of 1+ related Entries)
 
 # View:
 ChartSerialiser (ready data before it's sent to database as JSON)
