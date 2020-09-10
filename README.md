@@ -15,11 +15,16 @@ AdminGraphView (retrieve stored data and send to front-end)
 Pre-configured settings for consistancy between generated charts and chart customisation.
 `
   ChartSerializer(Serializer):
-  <br />
+  
   """ convert data into the format required by chartjs package """
+  
     title, charty_type and data
+    
     to_representation()
+    
     apply specific options based on chart type, colours, standard settings
+    
     generate chart selector
+    
     return chart
 `
