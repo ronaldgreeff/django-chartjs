@@ -1,10 +1,23 @@
 # django-chartjs
 A Django + charts.js implementation
 
-The background to this project was the need to provide 200+ users, split into "members" and "admins", with various graphs. For performance reasons, a query is performed as specified intervals and calculations stored in a separate database.
+Brief: ~200 members submit quarterly figures. Provide something in return to members in the form of data visualisation / charts
+Rationale: Submission every quarter / client already has a standard dataset they extract every quarter, so run preset queries at submission close; process and store the results in database to reduce computing.
 
-As such, the model is pretty simple - a DataSet and an Entry (an Entry having a many-to-one relationship with a DataSet). Each Entry is essentially a datapoint in a DataSet to be graphed.
+#Model:
+Chart -< DataSet -< Entry
 
-DataSets are serialized into the correct graph format (as required by ChartJS), with chart options and colour schemes added as an easily amended mapping.
+#View:
+ChartSerialiser (ready data before it's sent to database as JSON)
+AdminGraphView (retrieve stored data and send to front-end)
 
-It's assumed that all admin-graphs should be visible to all admins, and all member-graphs to members. Each DataSet is therefore automatically added to the REST API (split into members and admins) and also made available as context variables.
+#Serializers:
+Pre-configured settings for consistancy between generated charts and chart customisation.
+
+  ##ChartSerializer(Serializer):
+  """ convert data into the format required by chartjs package """
+    title, charty_type and data
+    to_representation()
+    apply specific options based on chart type, colours, standard settings
+    generate chart selector
+    return chart
