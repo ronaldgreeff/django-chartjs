@@ -6,6 +6,7 @@ Rationale: Submission every quarter / client already has a standard dataset they
 
 # Model:
 Chart -< DataSet -< Entry
+Pretty simple
 
 # View:
 ChartSerialiser (ready data before it's sent to database as JSON)
